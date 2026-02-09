@@ -271,7 +271,16 @@ def download_file(file_path):
     filename = os.path.basename(file_path)
     return send_from_directory(folder, filename, as_attachment=True)
 
-# 初始化并运行
-if __name__ == '__main__':
-    init_app()
-    app.run(debug=True, host='0.0.0.0')
+# 新增 Vercel 适配代码
+import os
+app.debug = False  # 生产环境关闭 debug
+
+# Vercel 入口
+def handler(environ, start_response):
+    from werkzeug.middleware.dispatcher import DispatcherMiddleware
+    from werkzeug.serving import run_simple
+    application = DispatcherMiddleware(app)
+    return application(environ, start_response)
+
+# 初始化
+init_app()
