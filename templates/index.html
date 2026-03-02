@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        /* 全局变量：白天/暗黑模式的配色 */
+        :root {
+            --bg-primary: #f0f4f8;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --accent-primary: #3182ce;
+            --accent-secondary: #4299e1;
+            --danger: #e53e3e;
+            --success: #38a169;
+            --warning: #ed8936;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --gradient: linear-gradient(135deg, #4299e1 0%, #38b2ac 100%);
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --text-primary: #f7fafc;
+            --text-secondary: #e2e8f0;
+            --accent-primary: #63b3ed;
+            --accent-secondary: #7dddfa;
+            --danger: #fc8181;
+            --success: #68d391;
+            --warning: #f6ad55;
+            --border: #4a5568;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --gradient: linear-gradient(135deg, #2b6cb0 0%, #285e61 100%);
+        }
+
+        /* 全局重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: var(--transition);
+            padding-bottom: 40px;
+        }
+
+        /* 头部样式 - 科技感渐变 */
+        .header {
+            background: var(--gradient);
+            color: white;
+            padding: 20px 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        /* 科技感背景装饰 */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.2;
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        /* 模式切换按钮 */
+        .mode-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(5px);
+            transition: var(--transition);
+        }
+
+        .mode-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* 用户信息 */
+        .user-info {
+            max-width: 1000px;
+            margin: 0 auto 20px;
+            padding: 0 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info span {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .logout-btn {
+            color: var(--danger);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(229, 62, 62, 0.1);
+        }
+
+        /* 提示消息 */
+        .flash-container {
+            max-width: 1000px;
+            margin: 0 auto 20px;
+            padding: 0 20px;
+        }
+
+        .flash-message {
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .error-message {
+            background-color: rgba(229, 62, 62, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .success-message {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        /* 面包屑导航 */
+        .breadcrumbs {
+            max-width: 1000px;
+            margin: 0 auto 20px;
+            padding: 15px 20px;
+            background-color: var(--bg-secondary);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .breadcrumbs a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: var(--transition);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .breadcrumbs a:hover {
+            background-color: rgba(49, 130, 206, 0.1);
+        }
+
+        .breadcrumbs span {
+            color: var(--text-secondary);
+            margin: 0 8px;
+        }
+
+        /* 操作区域 */
+        .operations {
+            max-width: 1000px;
+            margin: 0 auto 30px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .operation-card {
+            background-color: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--accent-primary);
+        }
+
+        .operation-card h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .operation-card h3 svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--accent-primary);
+        }
+
+        .operation-card form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .operation-card input[type="file"],
+        .operation-card input[type="text"] {
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .operation-card input[type="file"] {
+            border: none;
+            padding: 0;
+        }
+
+        .operation-card input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--accent-primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-secondary);
+            transform: translateY(-2px);
+        }
+
+        /* 上传进度条样式 */
+        #uploadProgressContainer {
+            margin-top: 15px;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--gradient);
+            transition: width 0.3s ease;
+        }
+
+        /* 文件列表 */
+        .item-list {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .list-card {
+            background-color: var(--bg-secondary);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .list-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .list-header h3 {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+        }
+
+        .file-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .file-table th {
+            padding: 15px 20px;
+            text-align: left;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .file-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .file-table tr:hover td {
+            background-color: rgba(49, 130, 206, 0.05);
+        }
+
+        .file-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 文件/文件夹样式 */
+        .folder-icon {
+            color: var(--warning);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-icon {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .folder-link {
+            color: var(--warning);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .folder-link:hover {
+            color: var(--accent-primary);
+        }
+
+        /* 操作按钮 */
+        .action-link {
+            text-decoration: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            margin-right: 5px;
+        }
+
+        .download-link {
+            background-color: rgba(49, 130, 206, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .download-link:hover {
+            background-color: rgba(49, 130, 206, 0.2);
+        }
+
+        .delete-link {
+            background-color: rgba(229, 62, 62, 0.1);
+            color: var(--danger);
+        }
+
+        .delete-link:hover {
+            background-color: rgba(229, 62, 62, 0.2);
+        }
+
+        .rename-btn {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success);
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 5px;
+        }
+
+        .rename-btn:hover {
+            background-color: rgba(56, 161, 105, 0.2);
+        }
+
+        /* 重命名表单 */
+        .rename-form {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .rename-form input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            margin-right: 8px;
+            width: 200px;
+        }
+
+        .rename-form button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .confirm-btn {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: var(--border);
+            color: var(--text-secondary);
+        }
+
+        /* 空列表提示 */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-state p {
+            margin-top: 15px;
+            font-size: 1rem;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--accent-primary);
+            opacity: 0.5;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .operations {
+                grid-template-columns: 1fr;
+            }
+            
+            .rename-form input {
+                width: 150px;
+            }
+            
+            .file-table th, .file-table td {
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>LzxCloud</h1>
+                <p>LzxOffice 智能云存储网盘</p>
+            </div>
+            <button id="modeToggle" class="mode-toggle">
+                <span id="modeIcon">🌞</span>
+                <span id="modeText">白天模式</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 用户信息 + 退出按钮 -->
+    <div class="user-info">
+        <span>欢迎你，{{ user }}！</span>
+        <a href="/logout" class="logout-btn">退出登录</a>
+    </div>
+
+    <!-- 提示消息 -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="flash-message {% if '成功' in msg or '欢迎' in msg %}success-message{% else %}error-message{% endif %}">
+                        {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- 面包屑导航 -->
+    <div class="breadcrumbs">
+        <a href="/">首页</a>
+        {% for crumb in breadcrumbs %}
+            <span>/</span>
+            <a href="/folder/{{ crumb.path }}">{{ crumb.name }}</a>
+        {% endfor %}
+    </div>
+
+    <!-- 操作区域 -->
+    <div class="operations">
+        <div class="operation-card">
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                上传文件
+            </h3>
+            <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="folder_path" value="{{ current_folder }}">
+                <input type="file" name="file" required id="fileInput">
+                <button type="submit" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    开始上传
+                </button>
+                <!-- 上传进度条容器 -->
+                <div id="uploadProgressContainer" style="display: none;">
+                    <div class="progress-text">
+                        上传进度：<span id="uploadPercent">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="uploadProgressBar" class="progress-bar"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="operation-card">
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                创建文件夹
+            </h3>
+            <form action="/create_folder" method="post">
+                <input type="hidden" name="folder_path" value="{{ current_folder }}">
+                <input type="text" name="folder_name" placeholder="输入文件夹名称" required>
+                <button type="submit" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    创建
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 文件列表 -->
+    <div class="item-list">
+        <div class="list-card">
+            <div class="list-header">
+                <h3>文件列表</h3>
+            </div>
+            <table class="file-table">
+                <thead>
+                    <tr>
+                        <th>类型</th>
+                        <th>名称</th>
+                        <th>大小/更新时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if items|length == 0 %}
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            <div class="empty-icon">📁</div>
+                            <p>暂无文件/文件夹，点击上方「上传文件」或「创建文件夹」开始使用～</p>
+                        </td>
+                    </tr>
+                    {% else %}
+                        {% for item in items %}
+                        <tr>
+                            <td>
+                                {% if item.type == 'folder' %}
+                                    <span class="folder-icon">📁 文件夹</span>
+                                {% else %}
+                                    {% set ext = item.name.split('.')|last|lower %}
+                                    {% if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'] %}
+                                        <span class="file-icon">🖼️ 图片</span>
+                                    {% elif ext in ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv'] %}
+                                        <span class="file-icon">🎬 视频</span>
+                                    {% elif ext in ['mp3', 'wav', 'flac', 'aac', 'ogg'] %}
+                                        <span class="file-icon">🎵 音频</span>
+                                    {% elif ext in ['doc', 'docx', 'pdf', 'txt', 'md', 'rtf'] %}
+                                        <span class="file-icon">📄 文档</span>
+                                    {% elif ext in ['zip', 'rar', '7z', 'tar', 'gz'] %}
+                                        <span class="file-icon">📦 压缩包</span>
+                                    {% elif ext in ['exe', 'msi', 'apk', 'dmg'] %}
+                                        <span class="file-icon">⚙️ 程序</span>
+                                    {% else %}
+                                        <span class="file-icon">📄 文件</span>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.type == 'folder' %}
+                                    <a href="/folder/{{ item.path }}" class="folder-link">{{ item.name }}</a>
+                                {% else %}
+                                    {{ item.name }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.type == 'folder' %}
+                                    {{ item.time }}
+                                {% else %}
+                                    {{ item.size }} KB ({{ item.time }})
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.type == 'folder' %}
+                                    <!-- 文件夹操作 -->
+                                    <a href="/delete/{{ item.path }}" class="action-link delete-link" onclick="return confirm('确定要删除文件夹【{{ item.name }}】吗？会删除里面所有内容！')">删除</a>
+                                    <button class="rename-btn" onclick="showRenameForm('{{ loop.index }}')">重命名</button>
+                                {% else %}
+                                    <!-- 文件操作 -->
+                                    <a href="/download/{{ item.path }}" class="action-link download-link">下载</a>
+                                    <a href="/delete/{{ item.path }}" class="action-link delete-link" onclick="return confirm('确定要删除文件【{{ item.name }}】吗？删除后无法恢复！')">删除</a>
+                                    <button class="rename-btn" onclick="showRenameForm('{{ loop.index }}')">重命名</button>
+                                {% endif %}
+                                
+                                <!-- 重命名表单 -->
+                                <div id="rename-form-{{ loop.index }}" class="rename-form">
+                                    <form action="/rename" method="post">
+                                        <input type="hidden" name="item_path" value="{{ item.path }}">
+                                        <input type="text" name="new_name" value="{{ item.name }}" required>
+                                        <button type="submit" class="confirm-btn">确认</button>
+                                        <button type="button" class="cancel-btn" onclick="cancelRename('{{ loop.index }}')">取消</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 明暗模式切换逻辑
+        const modeToggle = document.getElementById('modeToggle');
+        const modeIcon = document.getElementById('modeIcon');
+        const modeText = document.getElementById('modeText');
+        const body = document.body;
+
+        // 检查本地存储的模式
+        const savedMode = localStorage.getItem('lzxcloud-mode');
+        if (savedMode === 'dark') {
+            body.classList.add('dark-mode');
+            modeIcon.textContent = '🌙';
+            modeText.textContent = '暗黑模式';
+        }
+
+        // 切换模式
+        modeToggle.addEventListener('click', () => {
+            if (body.classList.contains('dark-mode')) {
+                // 切换到白天模式
+                body.classList.remove('dark-mode');
+                modeIcon.textContent = '🌞';
+                modeText.textContent = '白天模式';
+                localStorage.setItem('lzxcloud-mode', 'light');
+            } else {
+                // 切换到暗黑模式
+                body.classList.add('dark-mode');
+                modeIcon.textContent = '🌙';
+                modeText.textContent = '暗黑模式';
+                localStorage.setItem('lzxcloud-mode', 'dark');
+            }
+        });
+
+        // 重命名表单逻辑
+        function showRenameForm(id) {
+            // 隐藏所有重命名表单
+            const allForms = document.getElementsByClassName('rename-form');
+            for (let form of allForms) {
+                form.style.display = 'none';
+            }
+            // 显示当前表单
+            document.getElementById('rename-form-' + id).style.display = 'block';
+        }
+
+        function cancelRename(id) {
+            document.getElementById('rename-form-' + id).style.display = 'none';
+        }
+
+        // 提示消息自动消失
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.height = '0';
+                msg.style.padding = '0 20px';
+                msg.style.marginBottom = '0';
+                msg.style.overflow = 'hidden';
+                setTimeout(() => {
+                    msg.remove();
+                }, 300);
+            });
+        }, 3000);
+
+        // 上传进度条逻辑
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const progressContainer = document.getElementById('uploadProgressContainer');
+        const progressBar = document.getElementById('uploadProgressBar');
+        const uploadPercent = document.getElementById('uploadPercent');
+
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // 阻止默认提交
+
+            // 校验是否选择文件
+            if (!fileInput.value) {
+                alert('请选择要上传的文件！');
+                return;
+            }
+
+            const formData = new FormData(uploadForm);
+            const xhr = new XMLHttpRequest();
+
+            // 显示进度条
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            uploadPercent.textContent = '0%';
+
+            // 监听上传进度
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = percent + '%';
+                    uploadPercent.textContent = percent + '%';
+                }
+            });
+
+            // 上传完成
+            xhr.addEventListener('load', function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    // 上传成功，刷新页面
+                    window.location.reload();
+                } else {
+                    alert('上传失败，请重试！');
+                    progressContainer.style.display = 'none';
+                }
+            });
+
+            // 上传错误/取消
+            xhr.addEventListener('error', function() {
+                alert('上传出错，请检查网络或文件！');
+                progressContainer.style.display = 'none';
+            });
+
+            xhr.addEventListener('abort', function() {
+                alert('上传已取消！');
+                progressContainer.style.display = 'none';
+            });
+
+            // 发送请求
+            xhr.open('POST', '/upload');
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>

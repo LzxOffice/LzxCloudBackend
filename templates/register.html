@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        /* 全局变量：白天/暗黑模式配色（和主页面保持一致） */
+        :root {
+            --bg-primary: #f0f4f8;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --accent-primary: #3182ce;
+            --accent-secondary: #4299e1;
+            --danger: #e53e3e;
+            --success: #38a169;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --gradient: linear-gradient(135deg, #4299e1 0%, #38b2ac 100%);
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --text-primary: #f7fafc;
+            --text-secondary: #e2e8f0;
+            --accent-primary: #63b3ed;
+            --accent-secondary: #7dddfa;
+            --danger: #fc8181;
+            --success: #68d391;
+            --border: #4a5568;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --gradient: linear-gradient(135deg, #2b6cb0 0%, #285e61 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* 科技感背景装饰 */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            opacity: 0.05;
+            z-index: -1;
+        }
+
+        .bg-decoration::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* 模式切换按钮 */
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .mode-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 注册卡片 */
+        .auth-card {
+            background-color: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--accent-primary);
+            transition: var(--transition);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .auth-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: var(--gradient);
+            color: white;
+            font-weight: 600;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(49, 130, 206, 0.4);
+        }
+
+        /* 提示消息 */
+        .flash-message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .error-message {
+            background-color: rgba(229, 62, 62, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .success-message {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        /* 链接样式 */
+        .auth-link {
+            text-align: center;
+            margin-top: 25px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .auth-link a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .auth-link a:hover {
+            color: var(--accent-secondary);
+            text-decoration: underline;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 30px 25px;
+            }
+
+            .auth-header h1 {
+                font-size: 1.7rem;
+            }
+
+            .mode-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 科技感背景装饰 -->
+    <div class="bg-decoration"></div>
+
+    <!-- 明暗模式切换按钮 -->
+    <button id="modeToggle" class="mode-toggle">
+        <span id="modeIcon">🌞</span>
+        <span id="modeText">白天模式</span>
+    </button>
+
+    <!-- 注册卡片 -->
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>LzxCloud 注册</h1>
+            <p>创建你的专属云存储账号</p>
+        </div>
+
+        <!-- 提示消息 -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="flash-message {% if '成功' in msg or '欢迎' in msg %}success-message{% else %}error-message{% endif %}">
+                        {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="/register" method="post">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required placeholder="请设置你的用户名">
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required placeholder="请设置你的密码">
+            </div>
+            <button type="submit" class="btn">注册</button>
+        </form>
+
+        <div class="auth-link">
+            已有账号？<a href="/login">立即登录</a>
+        </div>
+    </div>
+
+    <script>
+        // 明暗模式切换逻辑（和主页面保持一致）
+        const modeToggle = document.getElementById('modeToggle');
+        const modeIcon = document.getElementById('modeIcon');
+        const modeText = document.getElementById('modeText');
+        const body = document.body;
+
+        // 检查本地存储的模式
+        const savedMode = localStorage.getItem('lzxcloud-mode');
+        if (savedMode === 'dark') {
+            body.classList.add('dark-mode');
+            modeIcon.textContent = '🌙';
+            modeText.textContent = '暗黑模式';
+        }
+
+        // 切换模式
+        modeToggle.addEventListener('click', () => {
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                modeIcon.textContent = '🌞';
+                modeText.textContent = '白天模式';
+                localStorage.setItem('lzxcloud-mode', 'light');
+            } else {
+                body.classList.add('dark-mode');
+                modeIcon.textContent = '🌙';
+                modeText.textContent = '暗黑模式';
+                localStorage.setItem('lzxcloud-mode', 'dark');
+            }
+        });
+
+        // 提示消息自动消失
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.height = '0';
+                msg.style.padding = '0 16px';
+                msg.style.marginBottom = '0';
+                msg.style.overflow = 'hidden';
+                setTimeout(() => msg.remove(), 300);
+            });
+        }, 3000);
+    </script>
+</body>
+</html>
